@@ -1,23 +1,26 @@
 <template>
   <div class="beebee-welcome" v-if="storeAI.startChat === true">
-    <div id="message-question">What can you do?</div>
+    <div id="message-question">
+      <h1 class="welcome-message">Welcome to H2P :</h1>
+      <div class="sub-message">Holistic Health Practitioner</div>
+    </div>
     <div id="bb-features">
       <div class="message-bb">
-        <header>Ask</header>
+        <header>AI health agent</header>
         <div class="message-learn">
-          BeeBee about a data source, enter numbers or drag in a file
+          Patient centric research & health analysis using graphical tools.
         </div>
       </div>
       <div class="message-bb">
-        <header>Chart</header>
+        <header>Personalised Communication</header>
         <div class="message-learn">
-          A BentoBox offers a range of charts and analysis tools
+          Present personalised visualisation and content to each patient
         </div>
       </div>
       <div class="message-bb">
-        <header>Share</header>
+        <header>Secure Data</header>
         <div class="message-learn">
-          Securely send to other peers, employees or communities
+          Keep patient data secure and private.
         </div>
       </div>
     </div>
@@ -36,6 +39,14 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   display: grid;
   grid-template-columns: 1fr;
   justify-content: center;
+}
+
+.welcome-message {
+  color: whitesmoke;
+}
+
+.sub-message {
+  color: whitesmoke;  
 }
 
 #message-question {
@@ -70,9 +81,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   @media (min-width: 1024px) {
 
     .beebee-welcome {
-      position: fixed;
-      top: 60%;
-      left: 140px;
+      position: relative;
       z-index: 2;
       border: 0px dashed blue;
       width: 80%;
@@ -85,14 +94,14 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
     #bb-features {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: 1fr;
       gap: 2em;
       justify-content: center;
     }
 
     .message-bb {
       display: grid;
-      border: 1px solid orange;
+      border: 1px solid rgb(0, 13, 255);
       box-shadow: 8px 8px 8px 1px rgb(238, 215, 172);
       justify-content: center;
     }

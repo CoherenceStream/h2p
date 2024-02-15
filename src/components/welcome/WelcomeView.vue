@@ -1,10 +1,18 @@
 <template>
   <div id="space-shaper">
     <div class="bentospace">
-      <div class="beebee-home">
-        <beebee-chat></beebee-chat>
+      <div id="h2p-welcome">
+        <beebee-welcome></beebee-welcome>
       </div>
-      <beebee-welcome></beebee-welcome>
+      <div class="beebee-home">
+        <div id="try-beebee">
+          Ask the Health Agent for help to get started
+        </div>
+        <beebee-chat></beebee-chat>
+        <div id="term-statement">
+          (do not consider the answers as medical advise, for illustrative purposes)
+        </div>
+      </div>
     </div>
   </div>
 
@@ -56,17 +64,14 @@ const storeAI = aiInterfaceStore()
       border: 0px dashed green;
     }
 
-    .bento-history {
-      border: 3px solid red;
-      display: grid;
-      grid-template-columns: 1fr;
-      width: 20vw;
-      margin-top: 9em;
+    #h2p-welcome {
+      border: 0px solid red;
+      background-color: blue;
     }
 
     .bentospace {
       display: grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: 1fr 1fr;
       border: 2px solid green;
       height: 98vh;
       width: 98vw;
@@ -80,12 +85,22 @@ const storeAI = aiInterfaceStore()
     }
 
     .beebee-home {
-      position: fixed;
+      position: relative;
       top: 30%;
       left: 50%;
+      margin-left: 1em;
       transform: translate(-50%, 50%);
       z-index: 2;
       border: 0px dashed rgb(27, 23, 130);
+    }
+
+    #try-beebee {
+      font-size: 1.4em;
+      padding-bottom: 2em;
+    }
+
+    #term-statement {
+      padding-top: 1em;
     }
   }
 </style>
