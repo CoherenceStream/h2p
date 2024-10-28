@@ -1,12 +1,11 @@
 <template>
   <div id="space-shaper">
     <div class="bentospace">
-      <div id="h2p-welcome">
+      <div id="lha-welcome">
         <beebee-welcome></beebee-welcome>
       </div>
       <div class="beebee-home">
         <div id="try-beebee">
-          Ask the Health Agent for help to get started
         </div>
         <beebee-chat></beebee-chat>
         <div id="term-statement">
@@ -64,9 +63,8 @@ const storeAI = aiInterfaceStore()
       border: 0px dashed green;
     }
 
-    #h2p-welcome {
-      border: 0px solid red;
-      background-color: blue;
+    #lha-welcome {
+      background-image: url('@/assets/longevitywheel.jpeg');
     }
 
     .bentospace {

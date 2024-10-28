@@ -1,26 +1,26 @@
 <template>
   <div class="beebee-welcome" v-if="storeAI.startChat === true">
     <div id="message-question">
-      <h1 class="welcome-message">Welcome to H2P :</h1>
-      <div class="sub-message">Holistic Health Practitioner</div>
+      <h1 class="welcome-message">Welcome to LHA :</h1>
+      <div class="sub-message">Longevity Health Agents</div>
     </div>
     <div id="bb-features">
       <div class="message-bb">
-        <header>AI health agent</header>
+        <header>Longevity Agents</header>
         <div class="message-learn">
-          Patient centric research & health analysis using graphical tools.
+          Help with research, biomarkers, analysis & charting
         </div>
       </div>
       <div class="message-bb">
-        <header>Personalised Communication</header>
+        <header>Community</header>
         <div class="message-learn">
-          Present personalised visualisation and content to each patient
+          Build networks of N=1 experiments around research, intervention or supplements etc.
         </div>
       </div>
       <div class="message-bb">
-        <header>Secure Data</header>
+        <header>Secure storage & sharing</header>
         <div class="message-learn">
-          Keep patient data secure and private.
+          Import sovereign data and share with those you trust
         </div>
       </div>
     </div>
@@ -42,11 +42,14 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 }
 
 .welcome-message {
-  color: whitesmoke;
+  color: black;
+  opacity: 100%;
 }
 
 .sub-message {
-  color: whitesmoke;  
+  color: black;
+  font-size: 1.2em;
+  font-weight: bold;
 }
 
 #message-question {
@@ -90,6 +93,9 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     #message-question {
       text-align: center;
       padding: 2em;
+      border-radius: 30%;
+      background-color: aliceblue;
+      background-color: rgba(204, 204, 204, 0.5);
     }
 
     #bb-features {

@@ -7,7 +7,7 @@
       <header>
         <div class="bentobox-top" id="logo-bb">
           <RouterLink to="/"><img alt="BentoBox-DS" class="logo" src="@/assets/logo.png" width="60" height="60" /></RouterLink>
-          <div class="logo-words"> H2P</div>
+          <div class="logo-words">LHA</div>
         </div>
         <div class="bentobox-top">
           <div class="bb-align"></div>
@@ -86,7 +86,6 @@ import { ref, onMounted } from 'vue'
 }
 
 #mobile-menu-live {
-  border: 0px solid red;
   height: 40px;
   display: grid;
   justify-content: center;
@@ -157,8 +156,8 @@ nav a:first-of-type {
     top: 0;
     display: grid;
     grid-template-columns: 1fr;
-    border: 0px solid rgb(189, 30, 210);
-    background-color: rgb(123, 169, 215);
+    background-image: linear-gradient(to right, rgb(111, 142, 147) 80%, rgb(125, 119, 150), rgb(204, 229, 233));
+    border-bottom: 1px solid white;
     z-index: 4
   }
 
