@@ -30,7 +30,7 @@
 <script setup>
 import VueResizable from 'vue-resizable'
 import BentoBox from  '@/components/bentobox/bentoBox.vue' 
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed} from 'vue'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { mapminiStore } from '@/stores/mapStore.js'
@@ -152,6 +152,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
   /* computed */
   const spaceLocation = computed(() => {
+    console.log(storeBentobox.locationBbox[storeAI.liveBspace.spaceid][props.bboxid])
     return storeBentobox.locationBbox[storeAI.liveBspace.spaceid][props.bboxid]
   })
 
@@ -307,6 +308,5 @@ import { mapminiStore } from '@/stores/mapStore.js'
   }
 
 }
-
 
 </style>

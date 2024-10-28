@@ -1,4 +1,7 @@
 'use strict'
+
+import { uniq } from "@vueuse/core/metadata.cjs"
+
 /**
 *  LibraryUtility
 *
@@ -41,6 +44,7 @@ class LibraryUtility { //  extends EventEmitter {
   expandModulesrefs = function (pubExpModules) {
     let expandRF = []
     let expandSafeFlowStructure = []
+    
     for (let pubex of pubExpModules.experiment) {
       // now expand out modlues
       for (let modr of pubex.value.modules) {
@@ -62,11 +66,21 @@ class LibraryUtility { //  extends EventEmitter {
         }
       }
       for (let exrc of expandRF) {
+        // console.log('expand loop')
+        // console.log(exrc)
         if (exrc.value.refcontract  === 'question') {
           expandSafeFlowStructure.push({ id: pubex.key, name: exrc.value.concept.name, description: '--', time: Infinity, device: 'Yes', action: 'Join' })
         }
       }
+      expandRF = []
     }
+    /*
+    const uniqueNXP = expandSafeFlowStructure.filter((value, index, self) =>
+      index === self.findIndex((t) => (
+          t.id === value.id
+      ))
+    )
+    */
     return expandSafeFlowStructure
   }
 

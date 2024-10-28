@@ -10,17 +10,19 @@
       <input v-model="newPeerPubKey" placeholder="public key">
       <button type="button" class="btn" @click="saveWarmpeer()">save</button>
     </div>
-    <ul class="peer-list-set" v-for='peer in storeAccount.warmPeers' :key='peer.id'>
-      <li>Peer {{ peer.datastore }} --- {{ peer.name }} --- {{ peer.publickey }}
-        <!-- <button type="button" class="btn" @click="peerSyncLibrary(peer.publickey)">Replicate</button> -->
-      </li>
-    </ul>
+    <div class="peer-list-set" v-for='peer in storeAccount.warmPeers' :key='peer.id'>
+      <div class="peer-g">
+        Peer {{ peer.datastore }} --- {{ peer.name }} --- {{ peer.publickey }}
+      </div>
+    </div>
+    <social-graph></social-graph>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { accountStore } from '@/stores/accountStore.js'
+import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 
   const storeAccount = accountStore()
 

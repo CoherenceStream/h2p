@@ -44,6 +44,14 @@
         Send invite
       </button>
     </form>
+    <div id="peers-available">
+      <h3>Existing peers</h3>
+      <select class="share-peer-list" id="peer-options-select" v-model="peerPshare" @change="selectPeerShare()">
+        <option selected="" v-for="pp in peerWarmlist" :value="pp.publickey">
+          {{ pp.publickey }}
+        </option>
+      </select>
+    </div>
   </div>
   <bb-tools v-if="boxToolsShow" :bboxid="props.bboxid"></bb-tools>
   <div id="library-summary" v-if="libSum">
@@ -78,6 +86,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   const shareForm = ref(false)
   let libSum = ref(false)
   let spaceSave = ref('')
+  let peerPshare = ref('')
 
 const props = defineProps({
     bboxid: String
@@ -102,6 +111,17 @@ const selectedTimeFormat = ref('timeseries')
 
   const expandFocus = computed(() => {
     return storeAI.expandBentobox[props.bboxid]    
+  })
+
+  const peerWarmlist = computed(() => {
+    // warm peers filter to unique
+    let peerUnqiue = []
+    const uniquePeers = storeAccount.warmPeers.filter((value, index, self) =>
+      index === self.findIndex((t) => (
+          t.publickey === value.publickey
+      ))
+    )
+    return uniquePeers
   })
 
   /* methods */
@@ -149,6 +169,10 @@ const selectedTimeFormat = ref('timeseries')
   }
 
   const chartSelect = () => {
+  }
+
+  const selectPeerShare = () => {
+    storeAccount.sharePubkey = peerPshare.value 
   }
 
   /*  computed */

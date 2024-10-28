@@ -2,8 +2,10 @@
   <div id="beebee-shaper">
     <div class="bento-history">
       <div id="bento-ai-diary">
-        <button id="diary-button" @click="openBentoDiary()" :class="{ active: diaryActive === true }">Diary</button>
-
+        <button id="cues-button" class="cue-cues" @click="openBentoCues()" :class="{ active: cuesActive === true }">Cues</button>
+        <button id="flake-button" class="cue-cues" @click="openBentoFlake()" :class="{ active: flakeActive === true }">Flake</button>
+        <button id="graph-button" class="cue-cues" @click="openBentoGraph()" :class="{ active: graphActive === true }">Graph</button>
+        <button id="diary-button" class="cue-cues" @click="openBentoDiary()" :class="{ active: diaryActive === true }">Diary</button>
       </div>
       <div class="history-buttons">
         <div class="history">
@@ -11,6 +13,14 @@
         </div>
         <div class="spaces">
           <button @click="historyType('space')" class="button-chat-menu" v-bind:class="{ active: historyList === 'space' }">Spaces</button>
+        </div>
+        <div id="body-cues">
+          <button id="body-image" @click="viewBody()" class="button-chat-menu" :class="{ active: bodyDiagramShow === true }">Body</button>
+          <!--<Teleport to="body">-->
+              <div id="body-daigram-interactive">
+                <body-diagram v-if="bodyDiagramShow === true"></body-diagram>
+              </div>
+          <!--</Teleport>-->
         </div>
       </div>
       <chat-menu v-if="historyActive ===  true"></chat-menu>
@@ -20,15 +30,22 @@
       <div class="beebee-home">
         <beebee-chat></beebee-chat>
        </div>
+       <bento-cues></bento-cues>
        <bento-space></bento-space>
        <bento-diary></bento-diary>
+       <bento-flake></bento-flake>
+       <bento-graph v-if="bentoGraphStatus === true"></bento-graph>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import BodyDiagram from '@/components/beebeeView/diagrams/bodyDiagram.vue'
 import ChatMenu from '@/components/beebeeView/navigation/chatMenu.vue'
+import BentoCues from '@/components/bentocues/healthCues.vue'
+import BentoFlake from '@/components/bentocues/flakeCues.vue'
+import BentoGraph from '@/components/bentocues/graphCues.vue'
 import SpaceMenu from '@/components/beebeeView/navigation/spaceMenu.vue'
 import BeebeeChat from '@/components/beebeehelp/chatInterface.vue'
 import BentoSpace from '@/components/bentospace/spaceTemplate.vue'
@@ -41,6 +58,14 @@ import { computed } from 'vue'
   const storeBentobox = bentoboxStore()
 
   let diaryActive = ref(false)
+  let cuesActive = ref(false)
+  let flakeActive = ref(false)
+  let graphActive = ref(false)
+  let bodyDiagramShow = ref(false)
+
+  const bentoGraphStatus = computed(() => {
+    return storeAI.bentographState
+  })
 
   const historyActive = computed(() => {
     return storeBentobox.historyActive
@@ -56,9 +81,29 @@ import { computed } from 'vue'
     storeBentobox.historyActive = !storeBentobox.historyActive // true
   }
 
+  const openBentoCues = () => {
+    cuesActive.value = !cuesActive.value
+    storeAI.bentocuesState = !storeAI.bentocuesState
+  }
+
   const openBentoDiary = () => {
     diaryActive.value = !diaryActive.value
     storeAI.bentodiaryState = !storeAI.bentodiaryState
+  }
+
+  const openBentoFlake = () => {
+    flakeActive.value = !flakeActive.value
+    storeAI.bentoflakeState = !storeAI.bentoflakeState
+  }
+
+  const openBentoGraph = () => {
+    storeAI.beebeeContext = 'graph'
+    graphActive.value = !graphActive.value
+    storeAI.bentographState = !storeAI.bentographState
+  }
+
+  const viewBody = () => {
+    bodyDiagramShow.value = !bodyDiagramShow.value
   }
 
 </script>
@@ -67,16 +112,14 @@ import { computed } from 'vue'
 #beebee-shaper {
   display: grid;
   grid-template-columns: 1fr;
-  top: 0%;
   width: 90vw;
   height: 94vh;
 }
 
 .bento-history {
-  margin-top: 5%;
   height: auto;
   display: grid;
-  justify-content: center;
+  justify-content: top;
 }
 
 .history-buttons {
@@ -121,23 +164,25 @@ import { computed } from 'vue'
   width: 120px;
 }
 
+.cue-cues {
+  margin-right: .2em;
+}
+
   @media (min-width: 1024px) {
 
     #beebee-shaper {
       display: grid;
       grid-template-columns: 1fr 7fr;
-      height: 90vh;
+      height: 100%;
       width: 100%;
-      border: 0px dashed rgb(0, 15, 128);
-      
     }
 
     .bento-history {
       display: grid;
       grid-template-columns: 1fr;
       grid-template-rows: 1fr 1fr 10fr;
-      margin-top: 8.5em;
-      height: 60vh;
+      margin-top: 4.5em;
+      height: 90%;
     }
 
     #bento-ai-diary {
@@ -160,6 +205,7 @@ import { computed } from 'vue'
       height: 2em;
       border: 0px dashed blue;
     }
+
     .bentospace {
       display: grid;
       grid-template-columns: 1fr;
@@ -173,6 +219,7 @@ import { computed } from 'vue'
       background: linear-gradient(-90deg, rgba(0, 0, 0, .1) 1px, transparent 1px), linear-gradient(rgba(0, 0, 0, .1) 1px, transparent 1px);
       background-size: 60px 60px, 60px 60px;
     }
+
     .beebee-home {
       display: grid;
       grid-template-columns: 1fr;
@@ -181,6 +228,20 @@ import { computed } from 'vue'
 
     .button-chat-menu {
       width: 180px;
+    }
+
+    #body-cues {
+      position: relative;
+    }
+
+    #body-daigram-interactive {
+      position: absolute;
+      left: 210px;
+      top: 0;
+      background-color: white;
+      border: 2px solid rgb(69, 69, 230);
+      /* background-color: white; */
+      z-index: 88;
     }
 
   }

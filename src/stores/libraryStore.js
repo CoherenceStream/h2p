@@ -5,6 +5,7 @@ import LibraryUtility from '@/stores/hopUtility/libraryUtility.js'
 import { bentoboxStore } from "@/stores/bentoboxStore.js"
 import { useSocketStore } from '@/stores/socket.js'
 import hashObject from 'object-hash'
+import ChatUtilty from '@/stores/hopUtility/chatUtility.js'
 
 export const libraryStore = defineStore('librarystore', {
   state: () => ({
@@ -18,6 +19,7 @@ export const libraryStore = defineStore('librarystore', {
     storeBentoBox: bentoboxStore(),
     utilLibrary: new LibraryUtility(),
     sendSocket: useSocketStore(),
+    liveChatUtil: new ChatUtilty(),
     startLibrary: false,
     libraryMessage: '',
     uploadStatus: false,
@@ -139,6 +141,26 @@ export const libraryStore = defineStore('librarystore', {
       structureName: '',
       visHolder: [],
     },
+    newMediaForm: {
+      primary: true,
+      url: ''
+    },
+    newResearchForm: {
+      primary: true,
+      url: ''
+    },    
+    newMarkerForm: {
+      primary: true,
+      name: '',
+      url: '',
+      type: ''
+    },    
+    newProductForm: {
+      primary: true,
+      name: '',
+      url: '',
+      type: ''
+    },    
     deviceForm:
     {
       query: '',
@@ -158,7 +180,8 @@ export const libraryStore = defineStore('librarystore', {
     moduleNxpActive: 'question',
     dtcolumns: [],
     fileSaveStatus: false,
-    fileFeedback: ''
+    fileFeedback: '',
+    devicesJoin: []
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function
@@ -257,6 +280,20 @@ export const libraryStore = defineStore('librarystore', {
           // this.joinOptions.yaxis = message.data.tables
           // this.joinOptions.yaxis = ['time']
         }
+      } else if (message.action === 'PUT-stream') {
+        this.storeAI.qcount++
+        let chatPair = this.liveChatUtil.setlargeUploadChat(message, this.storeAI.qcount)
+        this.storeAI.historyPair[this.storeAI.chatAttention].push(chatPair)
+        // structure header to id, name object
+        let structureHeader = []
+        let countC = 1
+        for (let col of message.data.columns) {
+          structureHeader.push({ cid: countC, name: col})
+          countC++
+        }
+        this.newDatafile.columns = structureHeader  // need to be in object format
+        this.newDatafile.path = 'csv'
+        this.newDatafile.file = message.data.path
       } else if (message.action === 'source') {
         if (message.reftype === 'sqlite') {
           if (this.joinNXP === true) {
@@ -298,7 +335,9 @@ export const libraryStore = defineStore('librarystore', {
         } else {
           this.publicLibrary = message
         }
-      } else if (message.action === 'referenc-contract') {
+      } else if (message.action === 'reference-contract') {
+        console.log('ref save success')
+        console.log(message)
         // call HOP to get latest changes to public library
         this.sendMessage('get-public-library')
       } else if (message.action === 'peer-library') {

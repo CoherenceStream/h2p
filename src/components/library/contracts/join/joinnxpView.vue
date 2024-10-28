@@ -125,15 +125,20 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   const querySourceDataDevices = (moduleCont) => {
-    let messageHOP = {}
-    messageHOP.type = 'library'
-    messageHOP.action = 'source'
-    messageHOP.reftype = 'sqlite' // moduleCont.concept.path
-    messageHOP.privacy = 'private'
-    messageHOP.task = 'GET'
-    messageHOP.data = { query: 'devices', db: moduleCont.concept.filename, table: moduleCont.concept.devicequery }
-    // send
-    storeLibrary.sendMessage(messageHOP)
+    // is manual or query data source?
+    console.log(moduleCont)
+    if (moduleCont.concept.path === 'csv') {
+      storeLibrary.devicesJoin.push(moduleCont.concept.device)
+    } else if (moduleCont.concept.path === 'sqlite') {
+      let messageHOP = {}
+      messageHOP.type = 'library'
+      messageHOP.action = 'source'
+      messageHOP.reftype = 'sqlite' // moduleCont.concept.path
+      messageHOP.privacy = 'private'
+      messageHOP.task = 'GET'
+      messageHOP.data = { query: 'devices', db: moduleCont.concept.filename, table: moduleCont.concept.devicequery }
+      storeLibrary.sendMessage(messageHOP)
+    }
   }
 
   const joinNXPBoard = () => {

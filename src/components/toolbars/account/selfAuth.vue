@@ -21,7 +21,7 @@
           <div id="self-verify" v-if="storeAccount.peerauth !== true">
             <form id="self-signin-form" >
               <div class="self-inputs">
-                <label class="form-couple-type" for="password-account">password</label>
+                <label class="form-couple-type" for="password-account">password </label>
                 <input class="form-couple" type="password" id="password" name="password" v-model="selfpwInput">
                 <button id="self-auth" @click.prevent="selfVerify">Self Verify</button>
               </div>
@@ -107,6 +107,14 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 <style scoped>
 
+
+#connect-hop {
+  display: grid;
+  grid-template-columns: 1fr;
+  padding-top: 0em;
+  min-height: 0vh;
+}
+
 #return-modal-close {
   justify-content: right;
 }
@@ -126,6 +134,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   #connect-hop {
     display: grid;
     grid-template-columns: 1fr;
+    padding-top: 0em;
+    min-height: 2vh;
   }
 
   #self-verify {
@@ -141,6 +151,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   #disconnect-signout {
     display: grid;
     justify-content: right;
+    height: 50px;
   }
 
   #disconnect-button {

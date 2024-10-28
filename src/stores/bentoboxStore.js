@@ -44,13 +44,26 @@ export const bentoboxStore = defineStore('bentostore', {
     locationBbox: {
       91919191: {}
     },
+    locationMbox: {
+      91919191: {}
+    },
+    locationRbox: {
+      81819191: {}
+    },
+    locationMarkerbox: {
+      84819191: {}
+    },
     boxLocation:
     {
       x: 200,
       y: 200
     },
     locX: 140,
-    locY: 140
+    locY: 140,
+    videoMedia: {},
+    researchMedia: {},
+    markerMedia: {},
+    prductMedia: {}
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function
@@ -74,6 +87,8 @@ export const bentoboxStore = defineStore('bentostore', {
       if (message.reftype.trim() === 'chat-history') {
         if (message.action.trim() === 'start') {
           // set the saved chats for peer
+          console.log('start data fro spaces store')
+          console.log(message.data)
           let chatMenu = []
           for (let cm of message.data) {
             if(cm?.value?.chat) {
@@ -132,21 +147,22 @@ export const bentoboxStore = defineStore('bentostore', {
                   this.spaceList.push(cm.value.space)
                 }
                 this.storeAI.liveBspace = cm.value.space
+                // prepare the bentobox location for space
                 if (cm.value.bboxlist.length > 0) {
                   this.storeAI.bentoboxList[cm.value.space.spaceid] = cm.value.bboxlist
                   // set the default or save location of box in space
                   for (let bbox of cm.value.bboxlist) {
                     // setup default tempate i.e. prepare for adding to space
-                    const tW = 440
+                    const tW = 840
                     const tH = 440
                     let updateBox = {}
-                    updateBox.tW = 480
-                    updateBox.tH = 480
+                    updateBox.tW = tW
+                    updateBox.tH = tH
                     updateBox.handlers = ["r", "rb", "b", "lb", "l", "lt", "t", "rt"]
                     updateBox.left = 90 // ref(`calc(2% - ${tW / 2}px)`)
                     updateBox.top = 90 // ref(`calc(8% - ${tH / 2}px)`)
-                    updateBox.height = 'fit-content'
-                    updateBox.width = 'fit-content'
+                    // updateBox.height = 'fit-content'
+                    // updateBox.width = 'fit-content'
                     updateBox.maxW = '100%'
                     updateBox.maxH = '100%'
                     updateBox.minW = '20vw'
@@ -162,7 +178,19 @@ export const bentoboxStore = defineStore('bentostore', {
                 } else {
                   this.storeAI.bentoboxList[cm.value.space.spaceid] = {}
                 }
-
+                // prepare the mediabox location for space
+                if (cm.value?.mboxlist) {
+                  this.locationMbox[cm.value.space.spaceid] = []
+                  // turn object into array of keys
+                  let mediaboxKeys = Object.keys(cm.value.mboxlist)
+                  let mBoxList = []
+                  for (let mbkey of mediaboxKeys) {
+                    mBoxList.push({ tag: 'video', id: mbkey })
+                    // this.locationMbox[cm.value.space.spaceid].push({ tag: 'video', id: mbkey })
+                  }
+                  this.videoMedia[cm.value.space.spaceid] = mBoxList
+                  this.locationMbox[cm.value.space.spaceid] = cm.value.mboxlist
+                }
                 // check for location spaces info. already saved
                 if (cm?.value?.location) {
                   // add to menu list
@@ -236,24 +264,106 @@ export const bentoboxStore = defineStore('bentostore', {
       let spaceLive = this.locationBbox[space]
       if (bbox in spaceLive) {
       } else {
-        const tW = 440
+        const tW = 840
         const tH = 440
         let updateBox = {}
-        updateBox.tW = 480
-        updateBox.tH = 480
-        updateBox.handlers = ref(["r", "rb", "b", "lb", "l", "lt", "t", "rt"])
+        updateBox.tW = tW
+        updateBox.tH = tH
+        updateBox.handlers = ["r", "rb", "b", "lb", "l", "lt", "t", "rt"]
         updateBox.left = '90px' // ref(`calc(2% - ${tW / 2}px)`)
         updateBox.top = this.locationStart + 'px' // ref(`calc(8% - ${tH / 2}px)`)
-        // updateBox.height = ref('fit-content')
-        // updateBox.width = ref('fit-content')
-        // updateBox.maxW = ref('100%')
-        // updateBox.maxH = ref('100%')
-        // updateBox.minW = ref('20vw')
-        // updateBox.minH = ref('20vh')
-        updateBox.fit = ref(false)
-        updateBox.event = ref('')
-        updateBox.dragSelector = ref('.drag-container-1, .drag-container-2')
+        updateBox.height = 'auto'
+        updateBox.width = '40vw'
+        updateBox.maxW = '100%'
+        updateBox.maxH = '100%'
+        updateBox.minW = '40vw'
+        updateBox.minH = '20vh'
+        updateBox.fit = false
+        updateBox.event = ''
+        updateBox.dragSelector = '#bb-toolbar, .drag-container-2'
         this.locationBbox[space][bbox] = updateBox
+        this.locationStart+= 40
+      }
+    },
+    setLocationMbox (space, mbox) {
+      // check not already set
+      let spaceLive = this.locationMbox[space]
+      if (mbox in spaceLive) {
+      } else {
+        const tW = 840
+        const tH = 440
+        let updateBox = {}
+        updateBox.tW = tW
+        updateBox.tH = tH
+        updateBox.handlers = ["r", "rb", "b", "lb", "l", "lt", "t", "rt"]
+        updateBox.left = '90px' // ref(`calc(2% - ${tW / 2}px)`)
+        updateBox.top = this.locationStart + 'px' // ref(`calc(8% - ${tH / 2}px)`)
+        updateBox.height = 'auto'
+        updateBox.width = '20vw'
+        updateBox.maxW = '100%'
+        updateBox.maxH = '100%'
+        updateBox.minW = '20vw'
+        updateBox.minH = '20vh'
+        updateBox.fit = false
+        updateBox.event = ''
+        updateBox.dragSelector = '#bb-toolbar, .drag-container-2'
+        this.locationMbox[space][mbox] = updateBox
+        this.locationStart+= 40
+      }
+    },
+    setLocationRbox (space, mbox) {
+      console.log(space)
+      console.log(mbox)
+      // check not already set
+      let spaceLive = this.locationMbox[space]
+      if (mbox in spaceLive) {
+      } else {
+        const tW = 840
+        const tH = 440
+        let updateBox = {}
+        updateBox.tW = tW
+        updateBox.tH = tH
+        updateBox.handlers = ["r", "rb", "b", "lb", "l", "lt", "t", "rt"]
+        updateBox.left = '90px' // ref(`calc(2% - ${tW / 2}px)`)
+        updateBox.top = this.locationStart + 'px' // ref(`calc(8% - ${tH / 2}px)`)
+        updateBox.height = 'auto'
+        updateBox.width = '20vw'
+        updateBox.maxW = '100%'
+        updateBox.maxH = '100%'
+        updateBox.minW = '20vw'
+        updateBox.minH = '20vh'
+        updateBox.fit = false
+        updateBox.event = ''
+        updateBox.dragSelector = '#bb-toolbar, .drag-container-2'
+        this.locationRbox[space][mbox] = updateBox
+        this.locationStart+= 40
+      }
+    },
+    setLocationMarkerbox (space, mbox) {
+      console.log(space)
+      console.log(mbox)
+      // check not already set
+      let spaceLive = this.locationMarkerbox[space]
+      if (mbox in spaceLive) {
+      } else {
+        const tW = 840
+        const tH = 440
+        let updateBox = {}
+        updateBox.tW = tW
+        updateBox.tH = tH
+        updateBox.handlers = ["r", "rb", "b", "lb", "l", "lt", "t", "rt"]
+        updateBox.left = '90px' // ref(`calc(2% - ${tW / 2}px)`)
+        updateBox.top = this.locationStart + 'px' // ref(`calc(8% - ${tH / 2}px)`)
+        updateBox.height = 'auto'
+        updateBox.width = '20vw'
+        updateBox.maxW = '100%'
+        updateBox.maxH = '100%'
+        updateBox.minW = '20vw'
+        updateBox.minH = '20vh'
+        updateBox.fit = false
+        updateBox.event = ''
+        updateBox.dragSelector = '#bb-toolbar, .drag-container-2'
+        this.locationMarkerbox[space][mbox] = updateBox
         this.locationStart+= 40
       }
     },
