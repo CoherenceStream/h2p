@@ -33,18 +33,19 @@ const props = defineProps({
 <style scoped>
 .modal-mask {
   position: fixed;
-  z-index: 9;
+  z-index: 12;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  margin-top: .8em;
+  background-color: rgba(0, 0, 0, 0.1);
   display: flex;
   transition: opacity 0.3s ease;
 }
 
 .modal-container {
-  width: 98vw;
+  width: 94vw;
   height: 98vh;
   margin: auto;
   padding: 20px 30px;

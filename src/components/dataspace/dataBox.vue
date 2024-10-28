@@ -16,17 +16,30 @@
           <div id="return-modal-close" @click="closedataBox">return</div>
         </div>
         <h3>Data Box</h3>
-        <button @click="networkLibraryShow">Library</button>
-        <button @click="nxpLibraryPeer">Experiments</button>
+        <button class="button-lib-data" v-bind:class="{ active: libraryStatus === true }" @click="networkLibraryShow">
+          Library
+        </button>
+        <button class="button-lib-data" v-bind:class="{ active: uploadLive === true }" @click="networkUploadShow">
+          Upload
+        </button>
+        <button class="button-lib-data" v-bind:class="{ active: libraryExperiments === true }" @click="nxpLibraryPeer">
+          Experiments
+        </button>
+        <button class="button-lib-data" v-bind:class="{ active: newModulebuild === true }" @click="nxpAdd">
+          + new NXP
+        </button>
       </template>
       <template #body>
-        <space-upload v-if="uploadStatus === true"></space-upload>
+        <space-upload v-if="uploadStatus === true && joinNXPStatus !== true"></space-upload>
         <rest-upload v-if="restStatus === true"></rest-upload>
         <csv-preview v-if="storeLibrary.csvpreviewLive === true"></csv-preview>
+        <image-preview v-if="storeLibrary.imagepreviewLive === true"></image-preview>
         <div v-if="libraryStatus === true">
           <network-library></network-library>
         </div>
-        <library-view v-if="storeLibrary.libPeerview === true"></library-view>
+        <libraryexp-view v-if="storeLibrary.libPeerview === true"></libraryexp-view>
+        <newnxp-view v-if="storeLibrary.newNXP === true"></newnxp-view>
+        <joinnxp-view v-if="storeLibrary.joinNXP === true"></joinnxp-view>
       </template>
       <template #footer>
       </template>
@@ -40,25 +53,41 @@ import ModalData from '@/components/dataspace/datamodal/dataModal.vue'
 import SpaceUpload from '@/components/dataspace/upload/uploadSpace.vue'
 import RestUpload from '@/components/dataspace/upload/restUpload.vue'
 import CsvPreview from '@/components/dataspace/upload/csvPreview.vue'
+import ImagePreview from '@/components/dataspace/upload/imagePreview.vue'
 import NetworkLibrary from '@/components/library/index.vue'
-import LibraryView from '@/components/beebeeView/libraryView.vue'
+import LibraryexpView from '@/components/dataspace/libraryNXPView.vue'
+import NewnxpView from '@/components/dataspace/newnxpView.vue'
+import JoinnxpView from '@/components/library/contracts/join/joinnxpView.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 
   const storeAI = aiInterfaceStore()
-  const bboxStore = bentoboxStore()
+  const storeBentobox = bentoboxStore()
   const storeLibrary = libraryStore()
   const showModal = ref(true)
   
+  let libAction = ref('libraryexplorer')
+  let dataBoardStatus = ref(
+    {
+      libraryexplorer: true,
+      libraryupload: false,
+      libraryexperiments: false,
+      newexperiment: false
+     }
+  )
+
   const uploadStatus = computed(() => {
     return storeLibrary.uploadStatus
+  })
+
+  const joinNXPStatus = computed(() => {
+    return  storeLibrary.joinNXP
   })
 
   const restStatus = computed(() => {
     return storeLibrary.restStatus
   })
-
 
   const dataBoxStatus = computed(() => {
     return storeAI.dataBoxStatus
@@ -73,6 +102,14 @@ import { libraryStore } from '@/stores/libraryStore.js'
     return storeLibrary.libraryStatus
   })
 
+  const libraryExperiments = computed(() => {
+    return storeLibrary.libPeerview
+  })
+
+  const newModulebuild = computed(() => {
+    return storeLibrary.newNXP
+  })
+
   const closedataBox = () => {
     storeAI.dataBoxStatus = !storeAI.dataBoxStatus
     storeLibrary.uploadStatus = false
@@ -82,8 +119,31 @@ import { libraryStore } from '@/stores/libraryStore.js'
     storeLibrary.libraryStatus = !storeLibrary.libraryStatus
   }
 
+  const networkUploadShow = () => {
+    storeLibrary.uploadStatus = !storeLibrary.uploadStatus
+  }
+
   const nxpLibraryPeer = () => {
     storeLibrary.libPeerview = !storeLibrary.libPeerview
+    // prepare public library for table list view
+    if (storeLibrary.publicLibrary.referenceContracts !== undefined) {
+      storeLibrary.prepPublicNXPlist()
+    }
+  }
+
+  const nxpAdd = () => {
+    storeLibrary.newNXP = !storeLibrary.newNXP
+    // send message to HOP to create genesis NXP contract structure
+    if (storeLibrary.newNXP === true) {
+      // setup gensis open tools data structure
+      let modSettings = {}
+      modSettings.xaxis = ['time'] // mod.value.info.settings.xaxis
+      modSettings.yaxis = ['333']
+      modSettings.category = []
+      storeBentobox.openDataSettings['genesis-123579'] = modSettings
+      storeLibrary.prepareGenesisModContracts()
+      storeLibrary.saveSuccessnxp = false
+    }
   }
 </script>
 
@@ -121,6 +181,14 @@ import { libraryStore } from '@/stores/libraryStore.js'
       justify-content: right;
     }
 
+    .button-lib-data {
+      margin-left: 1em;
+    }
+
+    .active {
+      background-color: rgb(113, 172, 114);
+      border: 1px solid green;
+    }
 
   }
 

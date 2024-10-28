@@ -1,7 +1,8 @@
 <template>
   <div id="list-space">
     <div id="network-keys">
-      Public key: {{ storeAccount.networkInfo.publickey }}
+      <div class="type-peer">Public key (network share):</div>
+      <div class="type-peer-key">{{ storeAccount.networkInfo.publickey }}</div>
     </div>
     <button type="button" class="btn" @click.prevent="addWarmpeer()">Add new</button>
     <div v-if="addWarm === true" id="add-warm-peer">
@@ -28,14 +29,10 @@ import { accountStore } from '@/stores/accountStore.js'
   let newPeerPubKey = ref('')
 
   const addWarmpeer = () => {
-    console.log('add warm peer')
     addWarm.value = !addWarm.value
   }
 
   const saveWarmpeer = () => {
-    console.log('save warm peer')
-    console.log(newPeername)
-    console.log(newPeerPubKey)
     // send to HOP to save
     // temp
     let peerPair = {}
@@ -59,7 +56,18 @@ import { accountStore } from '@/stores/accountStore.js'
   }
 
   #network-keys {
-    margin: .1em;
+    display: grid;
+    grid-template-columns: 1fr 4fr;
+  }
+  .type-peer {
+    font-weight: bold;
+    padding-left: 2em;
+    line-height: 4em;
+  }
+
+  .type-peer-key {
+    padding-right: 0em;
+    line-height: 4em;
   }
 }
 

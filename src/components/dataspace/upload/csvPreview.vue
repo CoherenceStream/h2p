@@ -1,11 +1,14 @@
-<template>csv fiewer {{ storeLibrary.linesLimit?.length }}
+<template>
+  <div id="length-summary">
+    csv viewer length = {{ summarydata?.length }}
+  </div>
   <div id="data-viewer">
     <div class="csv-section" id="summary-content">
-      <ul v-for="(value, index) in storeLibrary.linesLimit" :key="value.id">
+      <ul v-for="(value, index) in summarydata" :key="value.id">
         <li><b>{{index }}</b> {{ value }}</li>
       </ul>
     </div>
-    <div class="convert-section" id="convert-data" v-if="storeLibrary.linesLimit?.length > 0">
+    <div class="convert-section" id="convert-data" v-if="summarydata?.length > 0">
       <form class="file-info">
         Please enter:
         <div class="file-info-label">
@@ -63,10 +66,15 @@
 
 <script setup>
 import { ref } from 'vue'
-// import { computed } from 'vue'
 import { libraryStore } from '@/stores/libraryStore.js'
 
   const storeLibrary = libraryStore() 
+
+  const props = defineProps({
+    summarydata: Array
+  })
+
+
 
   const fileStatus = ref(false)
   let fileFeedback = ref('file feedback')

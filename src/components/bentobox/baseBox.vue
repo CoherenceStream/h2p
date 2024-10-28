@@ -1,60 +1,33 @@
 <template>
-  <div class="drag-container-1">
-    <div id="bb-toolbar">
-      <div class="bb-bar-main">a bentobox</div>
-      <div class="bb-bar-main"><button @click="clickSummaryLib(props.bboxid)">Lib</button></div>
-      <div class="bb-bar-main"><button @click="clickExpandBentobox(props.bboxid)">expand</button></div>
-      <div class="bb-bar-main"><button @click="clickAddbentoSpace(props.bboxid)">+ space</button></div>
-      <div class="bb-bar-main"><button @click="clickShareSpace(props.bboxid)">share</button></div>
-      <!--<div class="bb-bar-main"><button id="network-vis">social</button></div>
-      <div class="bb-bar-main"><button id="network-map">map</button></div>
-      <div class="bb-bar-main"><button id="bb-copy">copy</button></div>-->
-    </div>
-  </div>
-  <div id="share-form" v-if="shareForm">
-    <form id="ask-ai-form" @submit.prevent="storeAccount.shareProtocol(props.bboxid)">
-      <label for="sharepeer"></label>
-      <input type="input" id="sharekey" placeholder="publickey" v-model="storeAccount.sharePubkey" autofocus>
-      <button id="share-send" type="submit">
-      Send invite
-    </button>
-    </form>
-  </div>
-  <div id="library-summary" v-if="libSum">
-    <div id="lib-summary">
-      Library summary: {{ boxLibrarySummary.key[0] }}
-      <button @click="openLibrary">open library</button>
-    </div>
-    <div id="lib-modules">
-      Modules:
-      <div class="mod-key" v-for="mod in boxLibrarySummary.modules" :key="mod.id">
-       {{ mod }}
-      </div>
-    </div>
-  </div>
+  <!--<bento-box :bboxid="props.bboxid" :bbwidth="'90vw'"></bento-box>-->
+  <box-tools :bboxid="props.bboxid"></box-tools>
   <div id="bentobox-cell">
-    <div id="bb-network-graph">Network</div>
-    <div id="bb-world-map">map</div>
-    <div id="bentobox-holder">
-      <div id="network-bentobox">
-        network bentobox
+    <div class="bentocell-quadrants">
+    </div>
+    <div id="network-bentobox">
+      <div id="bb-network-graph">Network</div>
+      <div id="bb-world-map">map</div>
+      <div id="bentobox-holder">
+        <div id="network-bentobox">
+          network bentobox 
+        </div>
       </div>
-      <div id="peer-bentobox">
-        <div id="bento-past">
-          <div id="past-box"> {{ futureBox }}
-            <button id="full-past-toolbar">tools</button>
-            <button id="full-future-toolbar" @click="predictFuture()">future</button>
+    </div>
+    <div id="peer-bentobox">
+      <div id="bento-past">
+        <div id="past-box">
+          <!--<button id="full-past-toolbar">tools</button>-->
+          <button id="full-future-toolbar" @click="predictFuture()">future</button>
+        </div>
+        <div id="past-vis">
+          <bar-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'bar'" :chartData="chartData"></bar-chart>
+            <line-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'line'" :chartData="chartData"></line-chart>
           </div>
-          <div id="past-vis">
-            <bar-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'bar'" :chartData="chartData"></bar-chart>
-             <line-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'line'" :chartData="chartData"></line-chart>
-           </div>
-        </div>
-        <div id="bento-future" class="future-show" :class="{ active: futureBox }">
-          <div id="future-box"><button id="full-future-toolbar">full</button></div>
-          <bar-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'bar'" :chartData="chartfutureData" ></bar-chart>
-          <line-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'line'" :chartData="chartfutureData"></line-chart>
-        </div>
+      </div>
+      <div id="bento-future" class="future-show" :class="{ active: futureBox }">
+        <!--<div id="future-box"><button id="full-future-toolbar">full</button></div>-->
+        <bar-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'bar'" :chartData="chartfutureData" ></bar-chart>
+        <line-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'line'" :chartData="chartfutureData"></line-chart>
       </div>
     </div>
   </div>
@@ -62,20 +35,18 @@
 </template>
 
 <script setup>
+import BentoBox from '@/components/bentobox/bentoBox.vue'
+import BoxTools from '@/components/bentobox/tools/boxTools.vue'
 import BentoboxFocus from '@/components/bentobox/bentoboxFocus.vue'
 import barChart from '@/components/visualisation/charts/barChart.vue'
 import lineChart from '@/components/visualisation/charts/lineChart.vue'
 import { ref, computed, onMounted } from 'vue'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
-import { accountStore } from '@/stores/accountStore.js'
 
-  const storeAccount = accountStore()
   const storeAI = aiInterfaceStore()
-  const bbliveStore = bentoboxStore()
+  const storeBentobox = bentoboxStore()
   const futureStatus = ref(true)
-  const shareForm = ref(false)
-  const libSum = ref(false)
 
   const props = defineProps({
     bboxid: String
@@ -113,43 +84,19 @@ import { accountStore } from '@/stores/accountStore.js'
     }
    }
 
-  const openLibrary = () => {
-    storeAI.dataBoxStatus = true
-    storeAI.uploadStatus = false
-    storeLibrary.libraryStatus = true
-  }
-
-   const clickSummaryLib = (boxid) => {
-    libSum.value = !libSum.value
-    storeAI.prepareLibrarySummary(boxid)
-   }
-
-   const clickExpandBentobox = (boxid) => {
-    storeAI.expandBentobox[boxid] = true
-   }
-
-  const clickAddbentoSpace = (boxid) => {
-    // which space is active
-    storeAI.bentoboxList[storeAI.liveBspace.spaceid].push(boxid)
-  }
-
-  const clickShareSpace = (boxid) => {
-    shareForm.value = !shareForm.value
-  }
-  
   const checkEmpty = computed((value) => {
     return typeof value !== "number" ? 0 : value;
   })
 
   /* data flow work */
     // const dataValues = ref([2, 4, 7])
-  const dataValues = computed(() => {
+  /* const dataValues = computed(() => {
     return storeAI.tempNumberData[props.bboxid]
   })
 
   const dataLabel = computed(() => {
     return storeAI.tempLabelData[props.bboxid]
-  })
+  }) */
 
   const chartData = computed(() => {
     return storeAI.visData[props.bboxid]
@@ -166,21 +113,6 @@ import { accountStore } from '@/stores/accountStore.js'
     storeAI.prepareFuture(props.bboxid)
   }
 
-  /*
-  * library summary
-  */
-  const boxLibrarySummary = computed(() => {
-    let NXPcontract = {}
-    NXPcontract.key = Object.keys(storeAI.boxLibSummary[props.bboxid].data)
-    let modKeys = []
-    for (let mod of storeAI.boxLibSummary[props.bboxid].data[NXPcontract.key].modules) {
-      modKeys.push(mod.key)
-    }
-    NXPcontract.modules = modKeys
-    return NXPcontract
-    // return Object.keys(storeAI.boxLibSummary.data)
-  })
-
   const futureBox = computed(() => {
     return storeAI.activeFuture[props.bboxid]
   })
@@ -196,7 +128,7 @@ import { accountStore } from '@/stores/accountStore.js'
   const chartfutureData = computed(() => {
     return {
       labels: futuredataLabel.value,
-      datasets: [ { data: futuredataValues.value } ]
+      datasets: [ { label: 'datatype', data: futuredataValues.value } ]
     }
   })
     
@@ -204,25 +136,10 @@ import { accountStore } from '@/stores/accountStore.js'
 
 <style scoped>
 
-.drag-container-1 {
-  width: 100%;
-  height: 40px;
-  background: rgb(141, 145, 226);
-  color: white;
-  text-align: center;
-  cursor: pointer;
-  z-index: 9;
-}
-
 #bentobox-cell {
   display: block;
   border: 0px solid grey;
   z-index: 9;
-}
-
-#bb-toolbar {
-  display: grid;
-  grid-template-columns: 4fr 1fr 1fr 1fr 1fr;
 }
 
 #bb-network-graph {
@@ -265,6 +182,8 @@ import { accountStore } from '@/stores/accountStore.js'
 
 #bento-future {
   position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
   border:1px dashed orange;
   min-width: 10vw;
   min-height: 10vh;
@@ -299,15 +218,6 @@ import { accountStore } from '@/stores/accountStore.js'
 
 @media (min-width: 1024px) {
 
-  .drag-container-1 {
-    width: 100%;
-    height: 40px;
-    background: rgb(141, 145, 226);
-    color: white;
-    text-align: center;
-    cursor: pointer;
-    z-index: 9;
-  }
 
   #bentobox-cell {
     display: block;
@@ -316,11 +226,9 @@ import { accountStore } from '@/stores/accountStore.js'
     z-index: 9;
   }
 
-  #bb-toolbar {
-    display: grid;
-    grid-template-columns: 4fr 1fr 1fr 1fr 1fr;
-    width: 100%;
-    background-color:rgb(141, 145, 226);
+  .bentocell-quadrants {
+    background-color: red;
+    height: 0px;
   }
 
   #bb-network-graph {

@@ -1,6 +1,6 @@
 <template>
   <Line
-    id="my-chartline-id"
+    id="line-chartline-id"
     :options="chartOptions"
     :data="chartData"
   />
@@ -20,31 +20,53 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 const props = defineProps({
     chartData: Object
   })
-  /*
-  // const dataValues = ref([2, 4, 7])
-  const dataValues = computed(() => {
-    return storeAI.tempNumberData
-  })
 
-  const dataLabel = computed(() => {
-    return storeAI.tempLabelData
-  })
-
-  const chartData = computed(() => {
-    return {
-      labels: dataLabel.value, // [ 'January', 'February', 'March' ],
-      datasets: [ { data: dataValues.value } ]
-    }
-   })
-  */
   const chartOptions = computed(() => {
     return {
+      type: 'line',
       responsive: true,
-      maintainAspectRatio: true
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: storeAI.boxSettings.legends,
+          position: 'top',
+        },
+        title: {
+          display: true,
+          text: 'BentoBoxDS-charting'
+        }
+      },
+      options: {
+        scales: {
+          x: {
+            type: 'time',
+            /* time: {
+              unit: 'month'
+            }
+            time: {
+              displayFormats: {
+               quarter: 'MMM YYYY'
+              }
+            } */
+          },
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
     }
   })
 </script>
 
 <style scoped>
+  @media (min-width: 1024px) {
+
+  #line-chart-id {
+    display: relative;
+    height: 90%;
+    width: 90%;
+  }
+
+}
 
 </style>

@@ -3,21 +3,27 @@
     <div class="list-table">
       <div class="table-header">
         <div class="row-header">
-          <div class="header-items" v-for="key in props.columns" :key="key.id">
-            {{ key }}
+          <div class="header-items" v-for="col in props.columns">
+           {{ col }}
           </div>
         </div>
       </div>
-      <div class="table-rows">
-        <div class="alternate-bk" v-for="entry in props.experiments" :key="entry.id">
-          <div class="table-row-columns" v-for="key in props.columns" :key="key.id">
-            <div v-if="key !== 'action'">
-            {{entry[key]}}
+      <div v-if="props.experiments.length > 0" class="table-rows">
+        <div class="alternate-bk" v-for="entry in props.experiments">
+          <div class="table-row-columns" v-for="col in props.columns">
+            <div v-if="col !== 'action'">
+              {{ entry[col] }}
             </div>
-            <div v-else>
-              <button type="button" class="btn" @click="actionBoard(entry.id, entry)">{{ entry[key] }}</button>
+            <div v-else class="action-options">
+              <button type="button" class="constract-action" @click="actionBoard(entry, entry[col])">{{ entry[col] }}</button>
+              <div class="constract-action share-action" v-if="props.privacy === 'public'"><a href="#" @click="sharePubExp(entry)">share</a></div>
+              <div class="constract-action"><a class="remove-warn" href="#" @click="removeExp(entry)">remove</a></div>
             </div>
           </div>
+        </div>
+        <div class="share-protocol-nxp" v-if="shareProtocol">
+          <div class="share-board-summary">Share {{ shareBoardID.name }}</div>
+          <share-protocol :shareType="'publicboard'"></share-protocol>
         </div>
       </div>
     </div>
@@ -26,16 +32,22 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import ShareProtocol from '@/components/bentobox/tools/shareForm.vue'
 import { libraryStore } from '@/stores/libraryStore.js'
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { accountStore } from '@/stores/accountStore.js'
 
+  const storeAccount = accountStore()
   const storeLibrary = libraryStore()
+  const storeAI = aiInterfaceStore()
 
-  const sortOrders = ref({})
+  const shareProtocol = ref(false)
+  let shareBoardID = ref({})
 
   const props = defineProps({
     experiments: Array,
     columns: Array,
-    filterKey: String
+    privacy: String
   })
 
   const sortBy = (key) => {
@@ -43,112 +55,42 @@ import { libraryStore } from '@/stores/libraryStore.js'
     this.sortOrders[key] = this.sortOrders[key] * -1
   }
 
-  const actionBoard = (board, NXPcontract) => {
-      if (NXPcontract.action === 'View') {
-        console.log('view bentoboard and its boxes')
-        storeLibrary.prepareLibraryMessage(board, 'networkexperiment')
-        // this.$store.dispatch('actionHOPoutState', board)
-        // this.$store.dispatch('actionDashboardState', board)
-        // close BeeBee
-        // this.$store.dispatch('actionBBstate')
-      } else {
-        console.log('preview')
-        // preview network experiment
-        // this.$store.dispatch('actionJOINViewexperiment', board)
-        // this.refContractLookup()
-      }
-    }
+  const actionBoard = (board, actionType) => {
+    if (actionType === 'View') {
+      storeLibrary.prepareLibraryViewMessage(board, 'networkexperiment')
+      storeAI.dataBoxStatus = true
+      // this.$store.dispatch('actionHOPoutState', board)
+      // this.$store.dispatch('actionDashboardState', board)
+    } else if (actionType === 'Join') {
+      storeLibrary.joinSelected = board
+      storeLibrary.joinNXP = true
+      storeLibrary.uploadStatus = true
+      // need to look at queries and perform them
 
-/*
-export default {
-
-  computed: {
-    showExperimentList: function () {
-      return this.$store.state.experimentListshow
-    },
-    peerExperimentListlive: function () {
-      return this.$store.state.joinedNXPlist
-    },
-    visDefaults: function () {
-      return this.$store.state.visModuleHolder
-    },
-    selectedOptions: function () {
-      return this.$store.state.joinNXPselected
-    },
-    NXPstatusData: function () {
-      return this.$store.state.nxpModulelist
-    },
-    NXPprogress: function () {
-      return this.$store.state.nxpProgress
-    },
-    ecsMessage: function () {
-      return this.$store.state.ecsMessageLive
-    },
-    filteredExperiments: function () {
-      var sortKey = this.sortKey
-      var filterKey = this.filterKey && this.filterKey.toLowerCase()
-      var order = this.sortOrders[sortKey] || 1
-      var experiments = this.experiments
-      if (filterKey) {
-        experiments = experiments.filter(function (row) {
-          return Object.keys(row).some(function (key) {
-            return String(row[key]).toLowerCase().indexOf(filterKey) > -1
-          })
-        })
-      }
-      if (sortKey) {
-        experiments = experiments.slice().sort(function (a, b) {
-          a = a[sortKey]
-          b = b[sortKey]
-          return (a === b ? 0 : a > b ? 1 : -1) * order
-        })
-      }
-      this.setactiveXNPlist(experiments)
-      return experiments
-    }
-  },
-  filters: {
-    capitalize: function (str) {
-      return str.charAt(0).toUpperCase() + str.slice(1)
-    }
-  },
-  data: function () {
-    var sortOrders = {}
-    this.columns.forEach(function (key) {
-      sortOrders[key] = 1
-    })
-    return {
-      shellContract: '',
-      sortKey: '',
-      sortOrders: sortOrders,
-      actionKBundle: {},
-      previewSeen: false,
-      type: 'chart.js',
-      shellID: null,
-      moduleCNRL: '',
-      moduleType: '',
-      mData: '',
-      visualRefCont: '',
-      messageRemove: false,
-      removeNXPid: ''
-    }
-  },
-  methods: {
-    sortBy: function (key) {
-      this.sortKey = key
-      this.sortOrders[key] = this.sortOrders[key] * -1
-    },
-    refContractLookup () {
-      // create new temp shellID
-      this.shellID = '7654321'
-      this.mData = '8855332211'
-    },
-    setactiveXNPlist (nxp) {
-      this.$store.dispatch('actionLiveNXPlist', nxp)
+    } else {
+      // preview network experiment
+      // this.$store.dispatch('actionJOINViewexperiment', board)
+      // this.refContractLookup()
     }
   }
-}
-*/
+
+  const sharePubExp = (pubBoard) => {
+    shareBoardID.value = pubBoard
+    storeAccount.shareBoardNXP = shareBoardID.value
+    shareProtocol.value = !shareProtocol.value
+  }
+
+  const removeExp = (exp) => {
+    storeLibrary.removeExpModContract(exp.id, props.privacy)
+    if (props.privacy === 'private') {
+      let index = storeLibrary.peerExperimentList.data.indexOf(exp.id)
+      storeLibrary.peerExperimentList.data.splice(index, 1)
+    } else if (props.privacy === 'public') {
+      let index = storeLibrary.listPublicNXP.data.indexOf(exp.id)
+      storeLibrary.listPublicNXP.data.splice(index, 1)
+    }
+  }
+
 </script>
 
 <style scoped>
@@ -161,6 +103,7 @@ export default {
 }
 
 .list-table {
+  display: grid;
 }
 
 .row-header {
@@ -185,10 +128,19 @@ export default {
   grid-template-columns: 1fr;
 }
 
+.action-options {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.constract-action {
+  display: block;
+}
+
 .alternate-bk {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-  height: 50px;
+  height: auto;
   justify-content: bottom;
   background-color: white;
 }
@@ -204,4 +156,90 @@ export default {
 .scale-space.active {
   background-color: #4CAF50; /* Green */
 }
+
+.share-action {
+  font-size: 1.1em;
+}
+
+.remove-warn {
+  color: red;
+}
+
+  @media (min-width: 1024px) {
+    #grid-contracts {
+      max-height: 30em;
+      overflow-y: scroll;
+      display: grid;
+      grid-template-columns: 1fr;
+      width: 96%;
+    }
+
+    .list-table {
+      display: grid;
+    }
+
+    .row-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+      border: 1px solid lightgrey;
+      height: 40px;
+    }
+
+    .header-items {
+      align-self: center;
+      background-color: lightgrey;
+      padding: .4em;
+    }
+
+    .header-items:nth-child(1) {
+      width: 21em;
+    }
+
+    .table-rows {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    .action-options {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    .constract-action {
+      display: block;
+    }
+
+    .alternate-bk {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+      height: auto;
+      justify-content: bottom;
+      background-color: white;
+    }
+
+    .table-row-columns {
+      align-self: center;
+    }
+
+    .alternate-bk:nth-child(even) {
+      background-color: #ffefd5;
+    }
+
+    .scale-space.active {
+      background-color: #4CAF50; /* Green */
+    }
+
+    .share-action {
+      font-size: 1.2em;
+    }
+
+    .remove-warn {
+      color: red;
+    }
+
+    .share-board-summary {
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+  }
 </style>
